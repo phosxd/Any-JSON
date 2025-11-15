@@ -1,6 +1,14 @@
+<div align="middle">
+
+[![Release](https://img.shields.io/badge/Need_help%3F-gray?style=flat&logo=discord)](https://dsc.gg/sohp)
+
+<img src="git_assets/banner.png" align=""></img>
+
 Convert any Godot Variant or Object to raw JSON, with support for converting back into the original item with absolutely no data loss.
 
 This plugin is under development & not fully ready for use. Suggestions & contributions are still welcome!
+
+</div>
 
 # Features:
 # Error logging:
