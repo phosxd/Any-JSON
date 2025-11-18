@@ -104,37 +104,37 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 
 	elif type == 'Color':
 		if value is not Array or value.size() != 4: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Color(value[0], value[1], value[2], value[3])
 
 	elif type == 'Plane':
 		if value is not Array or value.size() != 4: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Plane(Vector3(value[0], value[1], value[2]), value[3])
 
 	elif type == 'Quaternion':
 		if value is not Array or value.size() != 4: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Quaternion(value[0], value[1], value[2], value[3])
 
 	elif type == 'Rect2':
 		if value is not Array or value.size() != 4: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Rect2(value[0], value[1], value[2], value[3])
 
 	elif type == 'Rect2i':
 		if value is not Array or value.size() != 4: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Rect2i(int(value[0]), int(value[1]), int(value[2]), int(value[3]))
 
 	elif type == 'AABB':
 		if value is not Array or value.size() != 6: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return AABB(Vector3(value[0], value[1], value[2]), Vector3(value[3], value[4], value[5]))
 
 	elif type == 'Basis':
 		if value is not Array or value.size() != 9: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Basis(
 			Vector3(value[0], value[1], value[2]),
 			Vector3(value[3], value[4], value[5]),
@@ -143,7 +143,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 
 	elif type == 'Transform2D':
 		if value is not Array or value.size() != 6: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Transform2D(
 			Vector2(value[0], value[1]),
 			Vector2(value[2], value[3]),
@@ -152,7 +152,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 
 	elif type == 'Transform3D':
 		if value is not Array or value.size() != 12: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Transform3D(
 			Vector3(value[0], value[1], value[2]),
 			Vector3(value[3], value[4], value[5]),
@@ -162,7 +162,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 
 	elif type == 'Transform3D':
 		if value is not Array or value.size() != 16: report_error(1); return null
-		if not _is_number_array(value): report_error(1); return null
+		if not A2JUtil.is_number_array(value): report_error(1); return null
 		return Projection(
 			Vector4(value[0], value[1], value[2], value[3]),
 			Vector4(value[4], value[5], value[6], value[7]),
@@ -174,9 +174,3 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 	else:
 		report_error(1)
 		return null
-
-
-func _is_number_array(array:Array) -> bool:
-	return array.all(func(item) -> bool:
-		return item is int or item is float
-	)

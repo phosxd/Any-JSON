@@ -10,7 +10,6 @@ func _init() -> void:
 	error_strings = [
 		'Object "~~" is not defined in registry.',
 		'"property_exclusions" in ruleset should be structured as follows: Dictionary[String,Array[String]].',
-		'"convert_named_resources_to_references" in ruleset should be a boolean value.',
 		'"convert_properties_to_references" in ruleset should be structured as follows: Dictionary[String,Dictionary[String,String]].',
 	]
 
@@ -37,16 +36,12 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	}
 
 	# Get exceptions from ruleset.
-	var convert_named_resource = ruleset.get('convert_named_resources_to_references', false)
-	if convert_named_resource is not bool:
-		report_error(2)
-		convert_named_resource = false
 	var properties_to_exclude:Array[String] = _get_properties_to_exclude(object, ruleset)
 	var properties_to_reference:Dictionary[String,String] = _get_properties_to_reference(object, ruleset)
 	# Convert all properties.
 	for property in object.get_property_list():
 		if property.name in properties_to_exclude: continue # Exclude.
-		# Reference.
+		# Reference is on properties to reference list.
 		if property.name in properties_to_reference:
 			var reference_name = properties_to_reference[property.name]
 			result.set(property.name, _make_reference(reference_name))

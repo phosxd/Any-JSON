@@ -4,11 +4,11 @@
 
 Godot 4.5 plugin to convert any Godot variant to raw JSON & back, with absolutely no data loss.
 
-This plugin is under development & not fully ready for use. Suggestions & contributions are still welcome!
+</div>
+
+**Version:** 1.0.0
 
 [![Release](https://img.shields.io/badge/Need_help%3F-gray?style=flat&logo=discord)](https://dsc.gg/sohp)
-
-</div>
 
 # Simple run-down:
 This plugin can serialize absolutely any data type within Godot to raw readable JSON so long as the appropriate type handlers have been implemented. You can serialize any custom & built-in classes too, as long as they are listed in `A2J.object_registry`, most common objects are already registered by default, but custom classes & more obscure built-in classes need to be manually registered.
@@ -39,8 +39,7 @@ All types listed below can be converted to JSON & back while preserving every de
 - Color
 - Plane
 - Quaternion
-- Rect2
-- Rect2i
+- Rect2, Rect2i
 - AABB
 - Basis
 - Transform2D
@@ -67,7 +66,7 @@ A downside to `ResourceSaver` is that the resource path, UID, & other meta data 
 A "ruleset" can be supplied when converting to or from AJSON allowing fine control over serialization. Something you don't get with `var_to_str` & not as much with `ResourceSaver`.
 
 **Basic rules:**
-- `type_exclusions (in-dev)` (Array\[String\]): Types of variables/properties that will be discarded.
+- `type_exclusions` (Array\[String\]): Types of variables/properties that will be discarded.
 - `property_exclusions` (Dictionary\[String,Array\[String\]\]): Names of properties that will not be recognized for each object. Can be used to exclude for example `Resource` specific properties like `resource_path`.
 - `convert_properties_to_references` (Dictionary[String,Array[String]]): Names of object properties that will be converted to a named reference when converting to JSON. Named values can be supplied during conversion back to the original item with `named_references`.
 - `named_references` (Dictionary[String,Dictionary[String,Variant]]): Variants to replace named references with. See `convert_properties_to_references`.
@@ -75,7 +74,8 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 **Advanced rules:**
 - `midpoint (in-dev)` (Callable(item:Variant, ruleset:Dictionary) -> bool): Called right before conversion for every variable & property including nested ones. Returning `true` will permit conversion, returning `false` will discard the conversion for that item.
 
-# **To-Do:**
-- Add support for non string keys in dictionaries.
-- Add more built-in objects in the object registry.
-- Clean up code & add more descriptive comments.
+# **Limitations:**
+## Circular references:
+Serializing an object that has a property that can lead back to the original object is a circular reference & can cause infinite recursion if you are not aware & carful. To get around this, you can utilize the `convert_properties_to_references` rule.
+## Non-string dictionary keys:
+Currently, Any-JSON will throw an error if it encounters a dictionary with non-string keys. This is something I will fix in a later version.

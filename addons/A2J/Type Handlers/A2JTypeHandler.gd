@@ -16,14 +16,13 @@ var error_stack:Array[int] = []
 func report_error(error:int, ...translations) -> void:
 	var a2jError_ = a2jError % self.get_script().get_global_name()
 	error_stack.append(error)
-	if print_errors:
-		var message = error_strings.get(error)
-		if not message:
-			printerr(a2jError_+str(error))
-
-		else:
-			var translated_message = message
-			for tr in translations:
-				if tr is String:
-					translated_message = translated_message.replace('~~', tr)
-			printerr(a2jError_+translated_message)
+	if not print_errors: return
+	var message = error_strings.get(error)
+	if not message:
+		printerr(a2jError_+str(error))
+	else:
+		var translated_message = message
+		for tr in translations:
+			if tr is not String: continue
+			translated_message = translated_message.replace('~~', tr)
+		printerr(a2jError_+translated_message)
