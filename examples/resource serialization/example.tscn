@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3 uid="uid://dga4yk8tfdnea"]
+
+[ext_resource type="Script" uid="uid://d328nghhb2gm5" path="res://examples/resource serialization/example.gd" id="1_f063y"]
+[ext_resource type="ColorPalette" uid="uid://h4r6mvdqcuab" path="res://examples/resource serialization/color_palette.tres" id="2_qhbyp"]
+[ext_resource type="CylinderMesh" uid="uid://bc5i4mc22hnyg" path="res://examples/resource serialization/cone.tres" id="3_3tcnr"]
+
+[node name="Example" type="Node"]
+script = ExtResource("1_f063y")
+color_pallete = ExtResource("2_qhbyp")
+cone = ExtResource("3_3tcnr")

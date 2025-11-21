@@ -14,7 +14,7 @@ func to_json(dict:Dictionary, ruleset:Dictionary) -> Dictionary[String,Variant]:
 
 
 func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
-	var named_references = ruleset.get('named_references',{})
+	var named_references = ruleset.get('references',{})
 	if named_references is not Dictionary:
 		report_error(0)
 		return null

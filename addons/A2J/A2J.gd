@@ -24,23 +24,29 @@ const default_ruleset_to := {
 			'resource_scene_unique_id',
 			'resource_priority',
 		],
-		'Node': [
-			'_import_path',
-		],
 	},
-	'convert_properties_to_references': {}, # Define property names that will be converted to references instead of being converted to JSON representations of that property.
+	'exclude_private_properties': true, # Exclude properties that start with an underscore "_".
+	'exclude_properties_set_to_default': true, # Exclude properties whoms values are the same as the default of that property. This is used to reduce the amount of data we have to store, but isn't recommended if the defaults of class properties are expected to change.
+	'property_references': {}, # Property names that will be converted to references instead of being converted to JSON representations of that property.
+	'instantiator': null, # Object instantiator function. Use "_default_instantiator_function" as a template/reference.
 }
 
 ## The default ruleset used when calling [code]from_json[/code].
 const default_ruleset_from := {
+	'type_exlcusions': default_ruleset_to.type_exclusions,
 	'property_exclusions': default_ruleset_to.property_exclusions,
-	'named_references': {}, # Define named references & the value to assign to them.
+	'exclude_private_properties': true,
+	'references': {}, # Named references & the values to assign to them.
 }
 
 const error_strings := [
 	'No handler implemented for type "~~". Make a handler with the abstract A2JTypeHandler class.',
 	'"type_exclusions" in ruleset should be structured as follows: Array[String].',
 ]
+
+# Template for instantiator function.
+static func _default_instantiator_function(registered_object:Object, _object_class:String) -> Object:
+	return registered_object.new()
 
 static var _vector_type_handler := A2JVectorTypeHandler.new()
 static var _packed_array_type_handler := A2JPackedArrayTypeHandler.new()
@@ -88,7 +94,7 @@ static var object_registry:Dictionary[StringName,Object] = {
 	# Mesh.
 	'Mesh':Mesh, 'ArrayMesh':ArrayMesh, 'PrimitiveMesh':PrimitiveMesh, 'BoxMesh':BoxMesh, 'CapsuleMesh':CapsuleMesh, 'CylinderMesh':CylinderMesh, 'PlaneMesh':PlaneMesh, 'QuadMesh':QuadMesh, 'PointMesh':PointMesh, 'PrismMesh':PrismMesh, 'RibbonTrailMesh':RibbonTrailMesh, 'SphereMesh':SphereMesh, 'TextMesh':TextMesh, 'TorusMesh':TorusMesh, 'TubeTrailMesh':TubeTrailMesh, 'PlaceholderMesh':PlaceholderMesh, 'ImmediateMesh':ImmediateMesh,
 	# Material.
-	'Material':Material, 'ShaderMaterial':ShaderMaterial, 'CanvasItemMaterial':CanvasItemMaterial, 'PanoramaSkyMaterial':PanoramaSkyMaterial, 'ParticleProcessMaterial':ParticleProcessMaterial, 'StandardMaterial3D':StandardMaterial3D, 'ORMMaterial3D':ORMMaterial3D, 'FogMaterial':FogMaterial, 'PlaceholderMaterial':PlaceholderMaterial,
+	'Material':Material, 'ShaderMaterial':ShaderMaterial, 'CanvasItemMaterial':CanvasItemMaterial, 'PanoramaSkyMaterial':PanoramaSkyMaterial, 'ParticleProcessMaterial':ParticleProcessMaterial, 'PhysicalSkyMaterial':PhysicalSkyMaterial, 'ProceduralSkyMaterial':ProceduralSkyMaterial, 'StandardMaterial3D':StandardMaterial3D, 'ORMMaterial3D':ORMMaterial3D, 'FogMaterial':FogMaterial, 'PlaceholderMaterial':PlaceholderMaterial,
 	# Occluder3D.
 	'Occluder3D':Occluder3D, 'ArrayOccluder3D':ArrayOccluder3D, 'BoxOccluder3D':BoxOccluder3D, 'PolygonOccluder3D':PolygonOccluder3D, 'QuadOccluder3D':QuadOccluder3D, 'SphereOccluder3D':SphereOccluder3D,
 	# AudioBusLayout / AudioEffect.
@@ -104,7 +110,7 @@ static var object_registry:Dictionary[StringName,Object] = {
 	# Theme / StyleBox.
 	'Theme':Theme, 'StyleBoxEmpty':StyleBoxEmpty, 'StyleBoxFlat':StyleBoxFlat, 'StyleBoxLine':StyleBoxLine, 'StyleBoxTexture':StyleBoxTexture,
 	# Misc.
-	'BitMap':BitMap, 'BoneMap':BoneMap, 'Curve':Curve, 'Curve2D':Curve2D, 'Curve3D':Curve3D, 'CameraAttributes':CameraAttributes, 'CameraAttributesPhysical':CameraAttributesPhysical, 'CameraAttributesPractical':CameraAttributesPractical,
+	'BitMap':BitMap, 'BoneMap':BoneMap, 'ColorPalette':ColorPalette, 'Curve':Curve, 'Curve2D':Curve2D, 'Curve3D':Curve3D, 'CameraAttributes':CameraAttributes, 'CameraAttributesPhysical':CameraAttributesPhysical, 'CameraAttributesPractical':CameraAttributesPractical, 'LabelSettings':LabelSettings,
 	# Node.
 	'Node':Node, 'Control':Control, 'Node2D':Node2D, 'Node3D':Node3D, 'Camera2D':Camera2D, 'Camera3D':Camera3D, 'AudioStreamPlayer2D':AudioStreamPlayer2D, 'AudioStreamPlayer3D':AudioStreamPlayer3D,
 }
@@ -127,6 +133,8 @@ static func report_error(error:int, ...translations) -> void:
 
 ## Convert [param value] to an AJSON object or a JSON friendly value.
 ## If [param value] is an Object, only objects in the Object Registry can be converted.
+## [br][br]
+## Returns [code]null[/code] if failed.
 static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 	# Get type of value.
 	var type := type_string(typeof(value))
@@ -166,7 +174,7 @@ static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 	return handler.to_json(value, ruleset)
 
 
-## Convert [param value] to it's original value.
+## Convert [param value] to it's original value. Returns [code]null[/code] if failed.
 static func from_json(value, ruleset=default_ruleset_from) -> Variant:
 	# Get type of value.
 	var type: String

@@ -31,6 +31,10 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 		report_error(0, object_class)
 		return {}
 	registered_object = registered_object as Object
+	# Get default object to compare properties with.
+	var default_object:Object = _get_default_object(registered_object, object_class, ruleset)
+
+	# Set up result.
 	var result:Dictionary[String,Variant] = {
 		'.type': 'Object:%s' % object_class, 
 	}
@@ -41,6 +45,7 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	# Convert all properties.
 	for property in object.get_property_list():
 		if property.name in properties_to_exclude: continue # Exclude.
+		if property.name.begins_with('_') && ruleset.get('exclude_private_properties'): continue
 		# Reference is on properties to reference list.
 		if property.name in properties_to_reference:
 			var reference_name = properties_to_reference[property.name]
@@ -49,6 +54,9 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 		# Exclude null values.
 		var property_value = object.get(property.name)
 		if property_value == null: continue
+		# Exclude values that are the same as default values.
+		if ruleset.get('exclude_properties_set_to_default'):
+			if property_value == default_object.get(property.name): continue
 		# Convert value if not a primitive type.
 		var new_value
 		if typeof(property_value) not in A2J.primitive_types:
@@ -66,16 +74,18 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 	assert(object_class.begins_with('Object:'), 'JSON ".type" must be "Object:<class_name>".')
 	object_class = object_class.replace('Object:','')
 	
+	# Get & check registered object equivalent.
 	var registered_object = A2J.object_registry.get(object_class, null)
 	if registered_object == null:
 		report_error(0)
 	registered_object = registered_object as Object
 
-	var result:Object = registered_object.new()
+	var result:Object = _get_default_object(registered_object, object_class, ruleset)
 	var properties_to_exclude:Array[String] = _get_properties_to_exclude(result, ruleset)
 	for key in json:
 		if key.begins_with('.'): continue
 		if key in properties_to_exclude: continue
+		if key.begins_with('_') && ruleset.get('exclude_private_properties'): continue
 		var value = json[key]
 		var new_value
 		if typeof(value) not in A2J.primitive_types:
@@ -120,7 +130,7 @@ func _get_properties_to_exclude(object:Object, ruleset:Dictionary) -> Array[Stri
 ## Assemble list of properties to be converted to named references.
 ## [param object] is the object to use [code]is_class[/code] on.
 func _get_properties_to_reference(object:Object, ruleset:Dictionary) -> Dictionary[String,String]:
-	var properties_to_reference_in_ruleset = ruleset.get('convert_properties_to_references',{})
+	var properties_to_reference_in_ruleset = ruleset.get('property_references',{})
 	if properties_to_reference_in_ruleset is not Dictionary:
 		report_error(3)
 		return {}
@@ -152,3 +162,12 @@ func _make_reference(name:String) -> Dictionary[String,String]:
 	}
 	produced_references.append(name)
 	return result
+
+
+## Get the default object to compare properties to.
+static func _get_default_object(registered_object:Object, object_class:String, ruleset:Dictionary) -> Object:
+	var instantiator = ruleset.get('instantiator')
+	if instantiator is Callable:
+		return instantiator.call(registered_object, object_class)
+	else:
+		return registered_object.new()
