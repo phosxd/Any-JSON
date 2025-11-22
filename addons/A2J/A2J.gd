@@ -4,6 +4,7 @@ class_name A2J extends RefCounted
 
 ## Primitive types that do not require handlers.
 const primitive_types:Array[Variant.Type] = [
+	TYPE_NIL,
 	TYPE_BOOL,
 	TYPE_INT,
 	TYPE_FLOAT,
@@ -109,6 +110,8 @@ static var object_registry:Dictionary[StringName,Object] = {
 	'FontFile':FontFile, 'FontVariation':FontVariation, 'SystemFont':SystemFont,
 	# Theme / StyleBox.
 	'Theme':Theme, 'StyleBoxEmpty':StyleBoxEmpty, 'StyleBoxFlat':StyleBoxFlat, 'StyleBoxLine':StyleBoxLine, 'StyleBoxTexture':StyleBoxTexture,
+	# Multiplayer.
+	'SceneMultiplayer':SceneMultiplayer, 'MultiplayerPeer':MultiplayerPeer, 'OfflineMultiplayerPeer':OfflineMultiplayerPeer, 'ENetMultiplayerPeer':ENetMultiplayerPeer, 'MultiplayerPeerExtension':MultiplayerPeerExtension,
 	# Misc.
 	'BitMap':BitMap, 'BoneMap':BoneMap, 'ColorPalette':ColorPalette, 'Curve':Curve, 'Curve2D':Curve2D, 'Curve3D':Curve3D, 'CameraAttributes':CameraAttributes, 'CameraAttributesPhysical':CameraAttributesPhysical, 'CameraAttributesPractical':CameraAttributesPractical, 'LabelSettings':LabelSettings,
 	# Node.
