@@ -27,6 +27,7 @@ After converting your item to an AJSON dictionary, you can use `JSON.stringify` 
   - [Error logs](#error-logs)
 - [Limitations](#limitations)
   - [Circular references](#circular-references)
+  - [Local classes](#handling-local-classes)
 - [Examples](#example-usage)
   - [Adding to object registry](#adding-to-object-registry)
   - [Serializing to AJSON](#serializing-to-ajson)
@@ -96,7 +97,7 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 **Advanced Rules:**
 - `property_references (Dictionary[String,Array[String]])`: Names of object properties that will be converted to a named reference when converting to JSON. Named values can be supplied during conversion back to the original item with `references`.
 - `references (Dictionary[String,Dictionary[String,Variant]])`: Variants to replace property references with.
-- `instantiator (Callable(object_class:String) -> Object)`: Used for implementing custom logic for object instantiation. Useful for instantiating with objects with arguments or changing values after instantiation. The returned object will be used to compare default values when converting to AJSON, & will be used as a base when converting from AJSON.
+- `instantiator (Callable(registered_object:Object, object_class:String) -> Object)`: Used for implementing custom logic for object instantiation. Useful for instantiating with objects with arguments or changing values after instantiation. The returned object will be used to compare default values when converting to AJSON, & will be used as a base when converting from AJSON.
 - `midpoint (Callable(item:Variant, ruleset:Dictionary) -> bool)`: Called right before conversion for every variable & property including nested ones. Returning `true` will permit conversion, returning `false` will discard the conversion for that item.
 
 ## Error logs
@@ -106,15 +107,26 @@ Custom errors are printed to the console when serialization goes wrong. You can 
 ## Circular references
 Serializing an object that has a property that can lead back to the original object is a circular reference & can cause infinite recursion if you are not aware & carful. To get around this, you can utilize the `property_references` rule.
 
+## Handling local classes:
+All objects extending a custom class that is NOT globally available (defined as a child of a parent script) cannot be automatically identified as it has no global name.
+
+You will need to give your local classes the `_global_name` string constant which should be the same as the name you give it in the `A2J.object_registry`. The global name constant will allow Any-JSON to identify it when serializing.
+
+**What if I don't define `_global_name` on a local class?**
+
+Then the object will assume the class name of whatever the local class extends (RefCounted by default). No property data is discarded, it just cannot be applied to the correct class if you wish to convert it back from AJSON.
+
 # Example usage
 ## Adding to object registry
 Simply add the name of the class & the class itself to the `A2J.object_registry` dictionary. Do not add an instance of the object to the registry.
 ```gdscript
 class custom_class_1:
+  const _global_name := 'custom_class_1'
   var some_value:bool = true
 
 
 class custom_class_2:
+  const _global_name := 'custom_class_2'
   var some_value:int = 1
 
 
@@ -122,6 +134,32 @@ A2J.object_registry.merge({
   'custom_1': custom_class_1,
   'custom_2': custom_class_2,
 })
+
+
+# With constructor.
+# -----------------
+
+class custom_class_3:
+  const _global_name := 'custom_class_3'
+  var some_value: int
+
+  func _init(some_value:int) -> void:
+  		self.some_value = some_value
+
+
+# Add as normal.
+A2J.object_registry.merge({
+  'custom_class_3': custom_class_3,
+})
+
+
+# Override the "instantiator" function to account for the custom class.
+var ruleset := {
+  'instantiator': func(registered_object:Object, object_class:String) -> Object:
+    if object_class == 'custom_class_3':
+      return registered_object.new(0)
+    return registered_object.new()
+}
 ```
 In this case, we are using the `merge` method to add multiple objects while preserving all the default ones.
 
@@ -137,7 +175,10 @@ else:
 
 
 # With custom ruleset.
+# --------------------
+
 class custom_class:
+  const _global_name := 'custom_class'
   var_1:int = 1
   var_2:float = 0.5
 
