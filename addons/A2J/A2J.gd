@@ -14,7 +14,7 @@ const primitive_types:Array[Variant.Type] = [
 ## The default ruleset used when calling [code]to_json[/code].
 const default_ruleset_to := {
 	'type_exclusions': [
-		'Callable'
+		'Callable',
 	],
 	'property_exclusions': {
 		# Exclude all resource properties when converting to AJSON.

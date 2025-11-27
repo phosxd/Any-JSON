@@ -97,7 +97,7 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 **Advanced Rules:**
 - `property_references (Dictionary[String,Array[String]])`: Names of object properties that will be converted to a named reference when converting to JSON. Named values can be supplied during conversion back to the original item with `references`.
 - `references (Dictionary[String,Dictionary[String,Variant]])`: Variants to replace property references with.
-- `instantiator_function (Callable(registered_object:Object, object_class:String, ...args) -> Object)`: Used for implementing custom logic for object instantiation. Useful for changing values after instantiation. The returned object will be used to compare default values when converting to AJSON, & will be used as a base when converting from AJSON.
+- `instantiator_function (Callable(registered_object:Object, object_class:String, args:Array=[]) -> Object)`: Used for implementing custom logic for object instantiation. Useful for changing values after instantiation. The returned object will be used to compare default values when converting to AJSON, & will be used as a base when converting from AJSON.
 - `instantiator_arguments (Dictionary[String,Array])`: Arguments that will be passed to the object's `new` method.
 - `midpoint (Callable(item:Variant, ruleset:Dictionary) -> bool)`: Called right before conversion for every variable & property including nested ones. Returning `true` will permit conversion, returning `false` will discard the conversion for that item.
 
@@ -198,7 +198,7 @@ else:
   print(result)
 ```
 
-## Serializing back from AJSON:
+## Serializing back from AJSON
 Just pass the item you want to serialize to the `A2J.from_json` method. You can provide a custom ruleset, otherwise it will use the default ruleset defined at `A2J.default_ruleset_from`.
 ```gdscript
 var ajson = A2J.to_json(Vector3(1,2,3))

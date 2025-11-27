@@ -57,10 +57,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 		report_error(1)
 		return null
 	var value = json.get('value')
-	if value is not String && type not in special_types:
-		report_error(1)
-		return null
-	if type in special_types && value is not Array:
+	if (type in special_types && value is not Array) or (value is not String && type not in special_types):
 		report_error(1)
 		return null
 
