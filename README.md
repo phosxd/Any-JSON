@@ -26,7 +26,6 @@ After converting your item to an AJSON dictionary, you can use `JSON.stringify` 
   - [Rulesets](#rulesets)
   - [Error logs](#error-logs)
 - [Limitations](#limitations)
-  - [Circular references](#circular-references)
   - [Local classes](#handling-local-classes)
 - [Examples](#example-usage)
   - [Adding to object registry](#adding-to-object-registry)
