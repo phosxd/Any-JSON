@@ -47,9 +47,23 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Dictionary[Variant,Varian
 		var new_value
 		if typeof(value) not in A2J.primitive_types:
 			new_value = A2J._from_json(value, ruleset)
+			# Pass unresolved reference off to be resolved ater all objects are serialized & present in the object stack.
+			if new_value is String && new_value == '_A2J_unresolved_reference':
+				A2J._process_next_pass_functions.append(_resolve_reference.bind(result, key, value))
+				continue
 		else:
 			new_value = value
 		# Append value
 		result.set(key, new_value)
+
+	return result
+
+
+func _resolve_reference(value, result, ruleset:Dictionary, dict:Dictionary, key:String, reference_to_resolve) -> Variant:
+	var resolved_reference = A2J._from_json(reference_to_resolve, ruleset)
+	if resolved_reference is String && resolved_reference == '_A2J_unresolved_reference': resolved_reference = null
+	
+	# Set value.
+	dict.set(key, resolved_reference)
 
 	return result

@@ -78,6 +78,9 @@ All children of the item you are converting are recursively serialized. This mea
 
 This is a big advantage over some other plugins.
 
+Any-JSON also handles circular references, this means a property can link back to the original object but it will simply be converted to a reference instead of triggering infinite recursion.
+This works by storing an index value for every *unique* object & a reference to that index when it encounters a copy. However this does mean if the index values are tampered with in the JSON it could produce unexpected behavior.
+
 ## Modular
 Everything is coded in GDScript across distinct classes & files, allowing for easy modification & extension.
 
@@ -105,9 +108,6 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 Custom errors are printed to the console when serialization goes wrong. You can access a history of these errors through the `error_stack` property on type handlers that have `print_error` set to true.
 
 # Limitations
-## Circular references
-Serializing an object that has a property that can lead back to the original object is a circular reference & can cause infinite recursion if you are not aware & carful. To get around this, you can utilize the `property_references` rule.
-
 ## Handling local classes:
 All objects extending a custom class that is NOT globally available (defined as a child of a parent script) cannot be automatically identified as it has no global name.
 

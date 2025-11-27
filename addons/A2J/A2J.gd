@@ -120,6 +120,14 @@ static var object_registry:Dictionary[StringName,Object] = {
 }
 
 
+## Data that [A2JTypeHandler] objects can share & use during serialization.
+## Cleared before & after [code]to_json[/code] or [code]from_json[/code] is called.
+static var _process_data:Dictionary = {}
+
+## Array of functions for [A2JTypeHandler] objects to add to. Will be called in order after the main serialization has completed.
+static var _process_next_pass_functions:Array[Callable] = []
+
+
 ## Report an error to Any-JSON.
 ## [param translations] should be strings.
 static func report_error(error:int, ...translations) -> void:
@@ -140,7 +148,12 @@ static func report_error(error:int, ...translations) -> void:
 ## [br][br]
 ## Returns [code]null[/code] if failed.
 static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
+	_process_next_pass_functions.clear()
+	_process_data.clear()
+	_init_handler_data()
 	var result = _to_json(value, ruleset)
+	result = _call_next_pass_functions(value, result, ruleset)
+	_process_data.clear()
 	return result
 
 
@@ -185,7 +198,12 @@ static func _to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 
 ## Convert [param value] to it's original value. Returns [code]null[/code] if failed.
 static func from_json(value, ruleset=default_ruleset_from) -> Variant:
+	_process_next_pass_functions.clear()
+	_process_data.clear()
+	_init_handler_data()
 	var result = _from_json(value, ruleset)
+	result = _call_next_pass_functions(value, result, ruleset)
+	_process_data.clear()
 	return result
 
 
@@ -228,3 +246,15 @@ static func _from_json(value, ruleset=default_ruleset_from) -> Variant:
 
 	# Return converted value.
 	return handler.from_json(value, ruleset)
+
+
+static func _init_handler_data() -> void:
+	for key in type_handlers:
+		var handler:A2JTypeHandler = type_handlers[key]
+		_process_data.merge(handler.init_data.duplicate(true), true)
+
+
+static func _call_next_pass_functions(value, result, ruleset:Dictionary) -> Variant:
+	for callable in _process_next_pass_functions:
+		result = callable.call(value, result, ruleset)
+	return result

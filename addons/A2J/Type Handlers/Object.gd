@@ -10,6 +10,10 @@ func _init() -> void:
 		'"instantiator_function" in ruleset should be structured as follows: Callable(registered_object:Object, object_class:String, args:Array=[]) -> Object.',
 		'"instantiator_arguments" in rulset should be structured as follows: Dictionary[String,Array].',
 	]
+	init_data = {
+		'object_stack': [],
+		'object_stack_dict': {},
+	}
 
 
 func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
@@ -36,9 +40,20 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	# Get default object to compare properties with.
 	var default_object:Object = _get_default_object(registered_object, object_class, ruleset)
 
+	# If object has been serialized before, return a reference to it.
+	var object_stack:Array = A2J._process_data.object_stack
+	var index:int = object_stack.find(object)
+	if index != -1:
+		return _make_reference('.i'+str(index))
+	# If not, add to object stack & update index.
+	else:
+		index = object_stack.size()
+		A2J._process_data.object_stack.append(object)
+
 	# Set up result.
 	var result:Dictionary[String,Variant] = {
 		'.type': 'Object:%s' % object_class, 
+		'.i': index,
 	}
 
 	# Get exceptions from ruleset.
@@ -84,18 +99,26 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 		report_error(0)
 	registered_object = registered_object as Object
 
+	# Convert all values in the dictionary.
 	var result:Object = _get_default_object(registered_object, object_class, ruleset)
 	var properties_to_exclude:Array[String] = _get_properties_to_exclude(result, ruleset)
-	for key in json:
+	# Sort keys to prioritize script property.
+	var keys = json.keys()
+	keys.sort_custom(func(a,b) -> bool:
+		return a == 'script'
+	)
+	for key in keys:
 		if key.begins_with('.'): continue
 		if key in properties_to_exclude: continue
 		if key.begins_with('_') && ruleset.get('exclude_private_properties'): continue
 		var value = json[key]
-		var new_value
+		var new_value = value
 		if typeof(value) not in A2J.primitive_types:
 			new_value = A2J._from_json(value, ruleset)
-		else:
-			new_value = value
+			# Pass unresolved reference off to be resolved ater all objects are serialized & present in the object stack.
+			if new_value is String && new_value == '_A2J_unresolved_reference':
+				A2J._process_next_pass_functions.append(_resolve_reference.bind(result, key, value))
+				continue
 		# Set value as metadata.
 		if key.begins_with('metadata/'):
 			result.set_meta(key.replace('metadata/',''), new_value)
@@ -103,8 +126,26 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 		else:
 			result.set(key, new_value)
 
+	# Add result object to the object stack for use in references.
+	var index = json.get('.i')
+	if index is int or index is float:
+		A2J._process_data.object_stack_dict.set(str(int(index)), result)
+
 	return result
 
+
+func _resolve_reference(value, result, ruleset:Dictionary, object:Object, property:String, reference_to_resolve) -> Variant:
+	var resolved_reference = A2J._from_json(reference_to_resolve, ruleset)
+	if resolved_reference is String && resolved_reference == '_A2J_unresolved_reference': resolved_reference = null
+	
+	# Set value as metadata.
+	if property.begins_with('metadata/'):
+		object.set_meta(property.replace('metadata/',''), resolved_reference)
+	# Set value
+	else:
+		object.set(property, resolved_reference)
+
+	return result
 
 
 ## Assemble list of properties to exclude.
@@ -159,8 +200,8 @@ func _get_properties_to_reference(object:Object, ruleset:Dictionary) -> Dictiona
 	return properties_to_reference
 
 
-func _make_reference(name:String) -> Dictionary[String,String]:
-	var result:Dictionary[String,String] = {
+func _make_reference(name:String) -> Dictionary[String,Variant]:
+	var result:Dictionary[String,Variant] = {
 		'.type': 'A2JReference',
 		'value': name,
 	}

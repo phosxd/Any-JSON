@@ -9,6 +9,8 @@ const a2jError := 'A2J Error (%s): '
 var print_errors := true
 var error_strings = []
 var error_stack:Array[int] = []
+## Data merged to [code]A2J._process_data[/code] every time serialization begins.
+var init_data:Variant = {}
 
 
 ## Report an error to Any-JSON.

@@ -14,16 +14,21 @@ extends Node
 @export_tool_button('Decrypt & print file.') var test_decrypt = test_decrypt_callback
 
 var last_result
+## Using this as an example of how circular references are accounted for. The "self" value in this array should get printed as a reference in the scene example.
+var something_with_a_self_ref = [1,2,3,self]
 
 
 func print_scene_callback() -> void:
 	print_rich('[color=yellow][b]Converting [code]%s[/code] scene to AJSON (excluding attached script)...' % self.name)
+	# Use ruleset to set the script property as a reference that we can apply a value to during serialiation back to a Node. Doing this because I don't want to print the whole script source code in this example.
 	var ruleset := A2J.default_ruleset_to.duplicate(true)
-	ruleset.property_exclusions.set('Object', ['script'])
+	ruleset.property_references.set('Node', {'script':'script'})
+	ruleset.set('references', {})
+	ruleset.references.set('script', self.get_script())
 	last_result = A2J.to_json(self, ruleset)
 	print_rich('[b]Result:[/b] ', last_result)
 	print_rich('[color=green][b]Converting result back to original object...')
-	var result_back = A2J.from_json(last_result)
+	var result_back = A2J.from_json(last_result, ruleset)
 	print_rich(
 		'[b]Result back:[/b] ', result_back,
 	)
