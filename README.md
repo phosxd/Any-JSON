@@ -78,7 +78,7 @@ All children of the item you are converting are recursively serialized. This mea
 This is a big advantage over some other plugins.
 
 Any-JSON also handles circular references, this means a property can link back to the original object but it will simply be converted to a reference instead of triggering infinite recursion.
-This works by storing an index value for every *unique* object & a reference to that index when it encounters a copy. However this does mean if the index values are tampered with in the JSON it could produce unexpected behavior.
+This works by storing an index value (".i" property) for every *unique* object.
 
 ## Modular
 Everything is coded in GDScript across distinct classes & files, allowing for easy modification & extension.
@@ -115,6 +115,13 @@ You will need to give your local classes the `_global_name` string constant whic
 **What if I don't define `_global_name` on a local class?**
 
 Then the object will assume the class name of whatever the local class extends (RefCounted by default). No property data is discarded, it just cannot be applied to the correct class if you wish to convert it back from AJSON.
+
+# Preserving data integrity
+Here are a few rules you should follow so that you don't risk losing any data during or after serialization.
+- **Don't modify object indices:** Any-JSON uses index numbers to identify unique objects in resulting AJSON. These are necessary for resolving references & tampering with the indices will lead to incorrect deserialization of those references.
+- **Don't modify property defaults:** (Only applies if you use `exclude_properties_set_to_default` rule) Don't modify the default values of properties in classes that are used in serialization.
+- **Be aware of script dependencies:** Properties dependent on the original object's script in AJSON will be lost unless the script property is present in the AJSON (as a reference or an actual script object).
+- **Version mismatching:** Never use AJSON data produced from outdated versions of Any-JSON. Always use the same version to deserialize as you used to originally serialize that data.
 
 # Example usage
 ## Adding to object registry
