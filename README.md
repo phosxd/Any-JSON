@@ -6,7 +6,7 @@ Godot 4.4 to 4.5 plugin to convert any Godot variant to raw JSON & back, with ab
 
 </div>
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 [![Release](https://img.shields.io/badge/Need_help%3F-gray?style=flat&logo=discord)](https://dsc.gg/sohp)
 
@@ -32,6 +32,7 @@ After converting your item to an AJSON dictionary, you can use `JSON.stringify` 
   - [Adding to object registry](#adding-to-object-registry)
   - [Serializing to AJSON](#serializing-to-ajson)
   - [Serializing back from AJSON](#serializing-back-from-ajson)
+  - [Safe deserialization](#safe-deserialization)
   - [More...](./examples/)
 
 # Features
@@ -94,8 +95,10 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 **Basic rules:**
 - `type_exclusions (Array[String])`: Types of variables that will be discarded.
 - `type_inclusions (Array[String])`: Types of variables that are allowed, all others will be discarded. If left empty, all types are permitted.
-- `property_exclusions (Dictionary[String,Array[String]])`: Names of properties that will not be recognized for each object. Can be used to exclude for example `Resource` specific properties like `resource_path`.
-- `property_inclusions (Dictionary[String,Array[String]])`: Names of properties that are permitted for each object. Used for only saving specific properties.
+- `class_exclusions (Array[String])`: Object classes that will be discarded.
+- `class_inclusions (Array[String])`: Object classes that are allowed, all others will be discarded. If left empty, all types are permitted.
+- `property_exclusions (Dictionary[String,Array[String]])`: Names of properties that will be discarded for each object. Can be used to exclude for example `Resource` specific properties like `resource_path`.
+- `property_inclusions (Dictionary[String,Array[String]])`: Names of properties that are permitted for each object. Used for only saving specific properties. Will not be used if left empty.
 - `exclude_private_properties (bool)`: Exclude properties that start with an underscore "_".
 - `exclude_properties_set_to_default (bool)`: Exclude properties whoms values are the same as the default of that property. This is used to reduce the amount of data we have to store, but isn't recommended if the defaults of class properties are expected to change.
 - `fppe_mitigation (bool)`: Limits the number of decimals any floating point number can have to just 8, removing any floating point precision errors.
@@ -192,7 +195,7 @@ class custom_class:
   var_1:int = 1
   var_2:float = 0.5
 
-var custom_ruleset := {
+var ruleset := {
   # Excludes the "var_1" property for "custom_class".
   'property_exclusions': {
 	'custom_class': [
@@ -201,7 +204,7 @@ var custom_ruleset := {
   },
 }
 
-result = A2J.to_json(custom_class.new(), custom_ruleset)
+result = A2J.to_json(custom_class.new(), ruleset)
 if result == null:
   print('something went wrong')
 else:
@@ -216,3 +219,18 @@ var result = A2J.from_json(ajson)
 print(result) # Prints "(1, 2, 3)".
 print(type_string(typeof(result))) # Prints "Vector3".
 ```
+
+## Safe deserialization
+This is how you can deserialize AJSON data without the risk of running external code. (1.3.0+, "class_exclusions" rule not introduced before then).
+```gdscript
+var ruleset := {
+  'class_exclusions': [
+    'GDScript',
+  ],
+}
+
+var result = A2J.from_json(your_serialized_object, ruleset)
+```
+In this example we utilize the "class_exclusions" rule to exclude any object with the class name "GDScript". Any instances of a GDScript object in the AJSON will be discarded during conversion back to an object.
+
+If you have any other classes in the `A2J.object_registry` that can execute arbitrary code, you may want to add them to the list of exclusions.

@@ -19,12 +19,14 @@ var something_with_a_self_ref = [1,2,3,self]
 
 
 func print_scene_callback() -> void:
-	print_rich('[color=yellow][b]Converting [code]%s[/code] scene to AJSON (excluding attached script)...' % self.name)
+	print_rich('[color=yellow][b]Converting [code]%s[/code] scene to AJSON (excluding attached script & "last_result")...' % self.name)
 	# Use ruleset to set the script property as a reference that we can apply a value to during serialiation back to a Node. Doing this because I don't want to print the whole script source code in this example.
 	var ruleset := A2J.default_ruleset_to.duplicate(true)
+	# Set "script" property as a reference.
 	ruleset.property_references.set('Node', {'script':'script'})
-	ruleset.set('references', {})
-	ruleset.references.set('script', self.get_script())
+	ruleset.set('references', {'script': self.get_script()})
+	ruleset.property_exclusions.merge({'Node': ['last_result']}) # Exclude "last_result" property.
+	# Serialize & print results.
 	last_result = A2J.to_json(self, ruleset)
 	print_rich('[b]Result:[/b] ', last_result)
 	print_rich('[color=green][b]Converting result back to original object...')

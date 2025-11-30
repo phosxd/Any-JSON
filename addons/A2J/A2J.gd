@@ -17,6 +17,8 @@ const default_ruleset_to := {
 		'Callable',
 	],
 	'type_inclusions': [],
+	'class_exclusions': [],
+	'class_inclusions': [],
 	'property_exclusions': {
 		# Exclude all resource properties when converting to AJSON.
 		'Resource': [
@@ -46,6 +48,7 @@ const default_ruleset_from := {
 const error_strings := [
 	'No handler implemented for type "~~". Make a handler with the abstract A2JTypeHandler class.',
 	'"type_exclusions" & "type_inclusions" in ruleset should be structured as follows: Array[String].',
+	'"class_exclusions" & "class_inclusions" in ruleset should be structured as follows: Array[String].',
 ]
 
 # Template for instantiator function.
@@ -163,12 +166,15 @@ static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 static func _to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 	# Get type of value.
 	var type := type_string(typeof(value))
-	if type == 'Dictionary':
-		type = value.get('.type', '').split(':')[0]
-		if type == '': type = 'Dictionary'
+	var object_class: String
+	if type == 'Object':
+		object_class = A2JUtil.get_object_class(value)
 
 	# If type excluded, return null.
 	if _type_excluded(type, ruleset):
+		return null
+	# If class excluded, return null.
+	elif object_class && _class_excluded(object_class, ruleset):
 		return null
 	# If type is primitive, return the value unchanged.
 	if typeof(value) in primitive_types:
@@ -208,14 +214,20 @@ static func from_json(value, ruleset=default_ruleset_from) -> Variant:
 static func _from_json(value, ruleset=default_ruleset_from) -> Variant:
 	# Get type of value.
 	var type: String
+	var object_class: String
 	if value is Dictionary:
-		type = value.get('.type', '').split(':')[0]
+		var split_type:Array = value.get('.type', '').split(':')
+		type = split_type[0]
+		if split_type.size() == 2: object_class = split_type[1]
 		if type == '': type = 'Dictionary'
 	elif value is Array:
 		type = 'Array'
 
 	# If type excluded, return null.
 	if _type_excluded(type, ruleset):
+		return null
+	# If class excluded, return null.
+	elif object_class && _class_excluded(object_class, ruleset):
 		return null
 	# If type is primitive, return value unchanged.
 	elif typeof(value) in primitive_types:
@@ -249,6 +261,21 @@ static func _type_excluded(type:String, ruleset:Dictionary) -> bool:
 		return true
 	# If type is excluded, return true.
 	if type in type_exclusions or (type_inclusions.size() > 0 && type not in type_inclusions):
+		return true
+
+	return false
+
+
+static func _class_excluded(object_class:String, ruleset:Dictionary) -> bool:
+	# Get class exclusions & inclusions.
+	var class_exclusions = ruleset.get('class_exclusions', [])
+	var class_inclusions = ruleset.get('class_inclusions', [])
+	# Throw error if is not an array.
+	if class_exclusions is not Array or class_inclusions is not Array:
+		report_error(2)
+		return true
+	# If class is excluded, return true.
+	if object_class in class_exclusions or (class_inclusions.size() > 0 && object_class not in class_inclusions):
 		return true
 
 	return false

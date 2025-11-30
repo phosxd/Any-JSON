@@ -17,19 +17,7 @@ func _init() -> void:
 
 
 func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
-	# Get object class name.
-	var object_class: String
-	var script = object.get_script()
-	if script is Script:
-		object_class = script.get_global_name()
-		if object_class == '':
-			object_class = object.get_class()
-	else:
-		object_class = object.get_class()
-	# Class name override.
-	var object_class_override = object.get('_global_name')
-	if object_class_override is String:
-		object_class = object_class_override
+	var object_class := A2JUtil.get_object_class(object)
 
 	# Get & check registered object equivalent.
 	var registered_object = A2J.object_registry.get(object_class, null)
