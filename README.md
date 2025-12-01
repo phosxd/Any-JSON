@@ -18,6 +18,7 @@ Any-JSON is very simple to use, no need for setup or specification. Most common 
 After converting your item to an AJSON dictionary, you can use `JSON.stringify` to turn it into a raw text string but you will need to convert it back to a dictionary using `JSON.parse_string` if you want to convert it back to the original item.
 
 # **Table of contents:**
+- [Why use over alternatives](#why-use-over-alternatives)
 - [Features](#features)
   - [Supported types](#all-types-handled)
   - [Recursive](#nesting-all-the-way)
@@ -32,6 +33,24 @@ After converting your item to an AJSON dictionary, you can use `JSON.stringify` 
   - [Serializing back from AJSON](#serializing-back-from-ajson)
   - [Safe deserialization](#safe-deserialization)
   - [More...](./examples/)
+
+# Why use over alternatives
+## JSON.stringify
+This is good for storing simple data structures like primitives in arrays & dictionaries, but cannot support objects or more complex Variant types.
+
+## JSON.from_native
+This is by far the best solution at your disposal in Godot, if you are willing to sacrifice flexibility, security, & size.
+
+`JSON.from_native` does not give you any control over serialization besides the `full_objects` parameter that determines whether or not it will serialize objects. It also leaves you vulnerable to external code execution as it also stores all scripts with no option to exclude them in objects.
+
+Another reason you might consider using Any-JSON instead, is that `JSON.from_native` produces about 25% more text in my testing, taking up more space than outputs in Any-JSON. This is because the way the JSON is structured is just less efficient, but mostly because it also stores values that can be outright discarded as they are default values that can be restored during deserialization.
+
+The final downside to this is that you cannot serialize local classes (classes without a global name), it will just throw an error. This is probably not a concern for anyone.
+
+In conclusion, use Any-JSON for fine control & security via [rulesets](#rulesets). If that does not matter to you, use `JSON.from_native`.
+
+## var_to_str / var_to_bytes
+This has all the issues that `JSON.from_native` has, except it does produce much smaller outputs since it does not have to conform to the JSON standard.
 
 # Features
 ## All types handled
