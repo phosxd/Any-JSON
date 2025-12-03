@@ -15,7 +15,7 @@ func to_json(dict:Dictionary, ruleset:Dictionary) -> Dictionary[String,Variant]:
 		var value = dict[key]
 		# Convert key if is not string.
 		if key is not String:
-			key = A2J.to_json(key, ruleset)
+			key = A2J._to_json(key, ruleset)
 			key = '@:'+JSON.stringify(key,"",true,false)
 		# Convert value.
 		var new_value = A2J._to_json(value, ruleset)
