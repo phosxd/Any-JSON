@@ -12,7 +12,7 @@ const primitive_types:Array[Variant.Type] = [
 ]
 
 ## The default ruleset used when calling [code]to_json[/code].
-const default_ruleset_to := {
+const default_ruleset_to:Dictionary = {
 	'type_exclusions': [
 		'Callable',
 	],
@@ -38,14 +38,14 @@ const default_ruleset_to := {
 }
 
 ## The default ruleset used when calling [code]from_json[/code].
-const default_ruleset_from := {
+const default_ruleset_from:Dictionary = {
 	'type_exlcusions': default_ruleset_to.type_exclusions,
 	'property_exclusions': default_ruleset_to.property_exclusions,
 	'exclude_private_properties': true,
 	'references': {}, # Named references & the values to assign to them.
 }
 
-const error_strings := [
+const error_strings:Array[String] = [
 	'No handler implemented for type "~~". Make a handler with the abstract A2JTypeHandler class.',
 	'"type_exclusions" & "type_inclusions" in ruleset should be structured as follows: Array[String].',
 	'"class_exclusions" & "class_inclusions" in ruleset should be structured as follows: Array[String].',
@@ -62,29 +62,29 @@ static var _misc_type_handler := A2JMiscTypeHandler.new()
 ## A2JTypeHandlers that can be used.
 ## You can add custom type handlers here.
 static var type_handlers:Dictionary[String,A2JTypeHandler] = {
-	'A2JRef': A2JReferenceTypeHandler.new(),
-	'Object': A2JObjectTypeHandler.new(),
-	'Array': A2JArrayTypeHandler.new(),
-	'Dictionary': A2JDictionaryTypeHandler.new(),
-	'Vector': _vector_type_handler, 'Vector2': _vector_type_handler, 'Vector2i': _vector_type_handler,
-	'Vector3': _vector_type_handler, 'Vector3i': _vector_type_handler,
-	'Vector4': _vector_type_handler, 'Vector4i': _vector_type_handler,
-	'PackedByteArray': _packed_array_type_handler,
-	'PackedInt32Array': _packed_array_type_handler, 'PackedInt64Array': _packed_array_type_handler,
-	'PackedFloat32Array': _packed_array_type_handler, 'PackedFloat64Array': _packed_array_type_handler,
-	'PackedVector2Array': _packed_array_type_handler, 'PackedVector3Array': _packed_array_type_handler, 'PackedVector4Array': _packed_array_type_handler,
-	'PackedColorArray': _packed_array_type_handler,
-	'PackedStringArray': _packed_array_type_handler,
-	'StringName': _misc_type_handler,
-	'NodePath': _misc_type_handler,
-	'Color': _misc_type_handler,
-	'Plane': _misc_type_handler,
-	'Quaternion': _misc_type_handler,
-	'Rect2': _misc_type_handler, 'Rect2i': _misc_type_handler,
-	'AABB': _misc_type_handler,
-	'Basis': _misc_type_handler,
-	'Transform2D': _misc_type_handler, 'Transform3D': _misc_type_handler,
-	'Projection': _misc_type_handler,
+	'A2JRef':A2JReferenceTypeHandler.new(),
+	'Object':A2JObjectTypeHandler.new(),
+	'Array':A2JArrayTypeHandler.new(),
+	'Dictionary':A2JDictionaryTypeHandler.new(),
+	'Vector':_vector_type_handler, 'Vector2':_vector_type_handler, 'Vector2i':_vector_type_handler,
+	'Vector3':_vector_type_handler, 'Vector3i':_vector_type_handler,
+	'Vector4':_vector_type_handler, 'Vector4i':_vector_type_handler,
+	'PackedByteArray':_packed_array_type_handler,
+	'PackedInt32Array':_packed_array_type_handler, 'PackedInt64Array':_packed_array_type_handler,
+	'PackedFloat32Array':_packed_array_type_handler, 'PackedFloat64Array':_packed_array_type_handler,
+	'PackedVector2Array':_packed_array_type_handler, 'PackedVector3Array':_packed_array_type_handler, 'PackedVector4Array':_packed_array_type_handler,
+	'PackedColorArray':_packed_array_type_handler,
+	'PackedStringArray':_packed_array_type_handler,
+	'StringName':_misc_type_handler,
+	'NodePath':_misc_type_handler,
+	'Color':_misc_type_handler,
+	'Plane':_misc_type_handler,
+	'Quaternion':_misc_type_handler,
+	'Rect2':_misc_type_handler, 'Rect2i':_misc_type_handler,
+	'AABB':_misc_type_handler,
+	'Basis':_misc_type_handler,
+	'Transform2D':_misc_type_handler, 'Transform3D':_misc_type_handler,
+	'Projection':_misc_type_handler,
 }
 
 ## Set of recognized objects used for conversion to & from AJSON.
@@ -153,10 +153,10 @@ static func report_error(error:int, ...translations) -> void:
 
 
 ## Convert [param value] to an AJSON object or a JSON friendly value.
-## If [param value] is an Object, only objects in the Object Registry can be converted.
+## If [param value] is an [Object], only objects in the [code]object_registry[/code] can be converted.
 ## [br][br]
 ## Returns [code]null[/code] if failed.
-static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
+static func to_json(value:Variant, ruleset:=default_ruleset_to) -> Variant:
 	_process_next_pass_functions.clear()
 	_process_data.clear()
 	_init_handler_data()
@@ -166,7 +166,7 @@ static func to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 	return result
 
 
-static func _to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
+static func _to_json(value:Variant, ruleset:=default_ruleset_to) -> Variant:
 	# Get type of value.
 	var type := type_string(typeof(value))
 	var object_class: String
@@ -204,7 +204,7 @@ static func _to_json(value:Variant, ruleset=default_ruleset_to) -> Variant:
 
 
 ## Convert [param value] to it's original value. Returns [code]null[/code] if failed.
-static func from_json(value, ruleset=default_ruleset_from) -> Variant:
+static func from_json(value, ruleset:=default_ruleset_from) -> Variant:
 	_process_next_pass_functions.clear()
 	_process_data.clear()
 	_init_handler_data()
@@ -215,7 +215,7 @@ static func from_json(value, ruleset=default_ruleset_from) -> Variant:
 
 
 ## [param type_details] tells the function how to type the result.
-static func _from_json(value, ruleset=default_ruleset_from, type_details:Dictionary={}) -> Variant:
+static func _from_json(value, ruleset:=default_ruleset_from, type_details:Dictionary={}) -> Variant:
 	# Get type of value.
 	var type: String
 	var object_class: String
