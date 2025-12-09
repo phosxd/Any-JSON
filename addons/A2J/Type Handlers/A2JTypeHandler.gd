@@ -12,7 +12,7 @@ var print_errors := true
 ## Error message strings.
 var error_strings:Array[String] = []
 ## Array of error codes (corresponding to error message indices) accumulated throughout the object's lifespan.
-var error_stack:Array[int] = []
+var error_stack := PackedInt32Array()
 ## Data merged to [code]A2J._process_data[/code] every time serialization/deserialization begins.
 var init_data:Dictionary = {}
 

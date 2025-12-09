@@ -8,7 +8,7 @@
 ## [br]- PackedColorArray
 class_name A2JPackedArrayTypeHandler extends A2JTypeHandler
 
-const special_types:Array[String] = ['PackedStringArray', 'PackedColorArray']
+const special_types:PackedStringArray = ['PackedStringArray', 'PackedColorArray']
 
 
 func _init() -> void:

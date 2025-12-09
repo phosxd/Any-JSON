@@ -2,7 +2,7 @@
 class_name A2JUtil extends RefCounted
 
 
-const variant_type_string_map:Dictionary[Variant.Type,String] = {
+const variant_type_string_map:Dictionary[Variant.Type,StringName] = {
 TYPE_NIL:'Nil',
 TYPE_AABB:'AABB',
 TYPE_BASIS:'Basis',

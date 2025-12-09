@@ -16,6 +16,7 @@ const primitive_types:Array[Variant.Type] = [
 const default_ruleset_to:Dictionary = {
 	'type_exclusions': [
 		'RID',
+		'Signal',
 		'Callable',
 	],
 	'type_inclusions': [],
@@ -47,7 +48,7 @@ const default_ruleset_from:Dictionary = {
 	'references': {}, # Named references & the values to assign to them.
 }
 
-const error_strings:Array[String] = [
+const error_strings:PackedStringArray = [
 	'No handler implemented for type "~~". Make a handler with the abstract A2JTypeHandler class.',
 	'"type_exclusions" & "type_inclusions" in ruleset should be structured as follows: Array[String].',
 	'"class_exclusions" & "class_inclusions" in ruleset should be structured as follows: Array[String].',
@@ -272,7 +273,7 @@ static func _from_json(value, ruleset:=default_ruleset_from, type_details:Dictio
 			)
 	# Type array.
 	elif result is Array && type_details.get('type') == TYPE_ARRAY && type_details.get('hint_string') is String:
-		var hint_string:Array[String] = (type_details.get('hint_string') as String).split(';')
+		var hint_string:PackedStringArray = (type_details.get('hint_string') as String).split(';')
 		if hint_string.size() == 1:
 			var value_type = A2JUtil.variant_type_string_map.find_key(hint_string[0])
 			var value_class_name = ''

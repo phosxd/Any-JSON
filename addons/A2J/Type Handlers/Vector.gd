@@ -61,10 +61,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 	is_float = is_float as bool
 	
 	# Check & throw error if values contains anything not a number.
-	var contains_only_numbers:bool = values.all(func(item) -> bool:
-		return item is int or item is float
-	)
-	if not contains_only_numbers:
+	if not A2JUtil.is_number_array(values):
 		report_error(1)
 		return null
 

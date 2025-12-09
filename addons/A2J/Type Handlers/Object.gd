@@ -45,8 +45,8 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	}
 
 	# Get exceptions from ruleset.
-	var properties_to_exclude:Array[String] = _get_properties_to_exclude(object, ruleset)
-	var properties_to_include = _get_properties_to_include(object, ruleset)
+	var properties_to_exclude := _get_properties_to_exclude(object, ruleset)
+	var properties_to_include := _get_properties_to_include(object, ruleset)
 	var props_to_include_temp = ruleset.get('properties_inclusions', {})
 	var do_properties_to_include = (props_to_include_temp is Dictionary && not props_to_include_temp.is_empty())
 	var properties_to_reference:Dictionary[String,String] = _get_properties_to_reference(object, ruleset)
@@ -94,12 +94,12 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 	registered_object = registered_object as Object
 
 	# Convert all values in the dictionary.
-	var result:Object = _get_default_object(registered_object, object_class, ruleset)
-	var object_property_details = _get_object_property_details(result)
-	var properties_to_exclude:Array[String] = _get_properties_to_exclude(result, ruleset)
+	var result := _get_default_object(registered_object, object_class, ruleset)
+	var object_property_details := _get_object_property_details(result)
+	var properties_to_exclude := _get_properties_to_exclude(result, ruleset)
 	var properties_to_include = _get_properties_to_include(result, ruleset)
 	var props_to_include_temp = ruleset.get('properties_inclusions', {})
-	var do_properties_to_include = (props_to_include_temp is Dictionary && not props_to_include_temp.is_empty())
+	var do_properties_to_include:bool = (props_to_include_temp is Dictionary && not props_to_include_temp.is_empty())
 	# Sort keys to prioritize script property.
 	var keys = json.keys()
 	keys.sort_custom(func(a,b) -> bool:
@@ -144,7 +144,7 @@ func _resolve_reference(value, result, ruleset:Dictionary, object:Object, proper
 
 ## Assemble list of properties to exclude.
 ## [param object] is the object to use [code]is_class[/code] on.
-func _get_properties_to_exclude(object:Object, ruleset:Dictionary) -> Array[String]:
+func _get_properties_to_exclude(object:Object, ruleset:Dictionary) -> PackedStringArray:
 	var property_exclusions_in_ruleset:Dictionary = ruleset.get('property_exclusions',{})
 	# Throw error if property exclusions is not the expected type.
 	if property_exclusions_in_ruleset is not Dictionary:
@@ -152,7 +152,7 @@ func _get_properties_to_exclude(object:Object, ruleset:Dictionary) -> Array[Stri
 		return []
 
 	# Iterate on every list of exclusions.
-	var excluded_properties:Array[String] = []
+	var excluded_properties := PackedStringArray()
 	for key in property_exclusions_in_ruleset:
 		if not object.is_class(key): continue
 		var list = property_exclusions_in_ruleset[key]
@@ -168,7 +168,7 @@ func _get_properties_to_exclude(object:Object, ruleset:Dictionary) -> Array[Stri
 
 ## Assemble list of properties to include.
 ## [param object] is the object to use [code]is_class[/code] on.
-func _get_properties_to_include(object:Object, ruleset:Dictionary) -> Array[String]:
+func _get_properties_to_include(object:Object, ruleset:Dictionary) -> PackedStringArray:
 	var property_inclusions_in_ruleset:Dictionary = ruleset.get('property_inclusions',{})
 	# Throw error if property inclusions is not the expected type.
 	if property_inclusions_in_ruleset is not Dictionary:
@@ -176,7 +176,7 @@ func _get_properties_to_include(object:Object, ruleset:Dictionary) -> Array[Stri
 		return []
 
 	# Iterate on every list of inclusions.
-	var included_properties:Array[String] = []
+	var included_properties := PackedStringArray()
 	for key in property_inclusions_in_ruleset:
 		if not object.is_class(key): continue
 		var list = property_inclusions_in_ruleset[key]
