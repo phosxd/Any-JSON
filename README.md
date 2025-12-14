@@ -2,11 +2,11 @@
 
 <img src="git_assets/banner.png" align=""></img>
 
-Godot 4.4 to 4.5 plugin to convert any Godot variant to raw JSON & back, with absolutely no data loss.
+Godot 4.4 / 4.5 plugin to convert any Godot variant to raw JSON & back, with absolutely no data loss.
 
 </div>
 
-**Version:** 1.3.0
+**Version:** 1.3.1
 
 [![Release](https://img.shields.io/badge/Need_help%3F-gray?style=flat&logo=discord)](https://dsc.gg/sohp)
 
@@ -80,13 +80,14 @@ All types listed below can be converted to JSON & back while preserving every de
 - Rect2, Rect2i
 - AABB
 - Basis
-- Transform2D
-- Transform3D
+- Transform2D, Transform3D
 - Projection
 
 As of Godot 4.5 this is almost every `Variant.Type` available in GDScript that isn't run-time exclusive (like `RID`). If new types are added to GDScript you can add your own handler by extending `A2JTypeHandler` & adding an instance of the handler to `A2J.type_handlers`.
 
-**Note:** Most packed array types are converted to hexadecimal strings, so they will not be human readable. This might change in the future.
+**Note:**
+Packed array types are converted to a long hexadecimal string, so they will not be human readable.
+The only exceptions are `PackedColorArray` (array of color hex codes), & `PackedStringArray` (array of strings).
 
 Here are the types that will never be supported & their reasons:
 - Signal: signals are too complex due to all the moving parts & references. On top of that, there is no use case that comes to mind where saving this to disk would be useful.
@@ -124,9 +125,9 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 - `class_inclusions (Array[String])`: Object classes that are allowed, all others will be discarded. If left empty, all types are permitted.
 - `property_exclusions (Dictionary[String,Array[String]])`: Names of properties that will be discarded for each object. Can be used to exclude for example `Resource` specific properties like `resource_path`.
 - `property_inclusions (Dictionary[String,Array[String]])`: Names of properties that are permitted for each object. Used for only saving specific properties. Will not be used if left empty.
-- `exclude_private_properties (bool)`: Exclude properties that start with an underscore "_".
+- `exclude_private_properties (bool)`: Exclude properties that start with an underscore "\_". Also affects metadata properties.
 - `exclude_properties_set_to_default (bool)`: Exclude properties whoms values are the same as the default of that property. This is used to reduce the amount of data we have to store, but isn't recommended if the defaults of class properties are expected to change.
-- `fppe_mitigation (bool)`: Limits the number of decimals any floating point number can have to just 8, removing any floating point precision errors.
+- `fppe_mitigation (bool)`: Limits the number of decimals any floating point number can have to just 8, removing floating point precision errors.
 
 **Advanced Rules:**
 - `property_references (Dictionary[String,Array[String]])`: Names of object properties that will be converted to a named reference when converting to JSON. Named values can be supplied during conversion back to the original item with `references`.
@@ -143,7 +144,7 @@ Here are a few rules you should follow so that you don't risk losing any data du
 - **Don't modify object indices:** Any-JSON uses index numbers to identify unique objects in resulting AJSON. These are necessary for resolving references & tampering with the indices will lead to incorrect deserialization of those references.
 - **Don't modify property defaults:** (Only applies if you use `exclude_properties_set_to_default` rule) Don't modify the default values of properties in classes that are used in serialization.
 - **Be aware of script dependencies:** Properties dependent on the original object's script in AJSON will be lost unless the script property is present in the AJSON (as a reference or an actual script object).
-- **Version mismatching:** Never use AJSON data produced from outdated versions of Any-JSON. Always use the same version to deserialize as you used to originally serialize that data.
+- **Version mismatching:** Never use AJSON data produced from outdated versions of Any-JSON. Always use the same version to deserialize as you used to originally serialize that data. However, minor versions should still be cross compatible (X.X.*).
 
 # Example usage
 ## Adding to object registry
@@ -243,6 +244,6 @@ var ruleset := {
 
 var result = A2J.from_json(your_serialized_object, ruleset)
 ```
-In this example we utilize the "class_exclusions" rule to exclude any object with the class name "GDScript". Any instances of a GDScript object in the AJSON will be discarded during conversion back to an object.
+In this example we utilize the "class\_exclusions" rule to exclude any object with the class name "GDScript". Any instances of a GDScript object in the AJSON will be discarded during conversion back to an object.
 
 If you have any other classes in the `A2J.object_registry` that can execute arbitrary code, you may want to add them to the list of exclusions.

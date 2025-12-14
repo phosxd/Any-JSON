@@ -53,7 +53,8 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	# Convert all properties.
 	for property in object.get_property_list():
 		if property.name in properties_to_exclude: continue # Exclude.
-		if property.name.begins_with('_') && ruleset.get('exclude_private_properties'): continue
+		if ruleset.get('exclude_private_properties'):
+			if property.name.begins_with('_') or property.name.begins_with('metadata/_'): continue
 		if do_properties_to_include && property.name not in properties_to_include: continue
 		# Reference is on properties to reference list.
 		if property.name in properties_to_reference:
@@ -108,7 +109,8 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 	for key in keys:
 		if key.begins_with('.'): continue
 		if key in properties_to_exclude: continue
-		if key.begins_with('_') && ruleset.get('exclude_private_properties'): continue
+		if ruleset.get('exclude_private_properties'):
+			if key.begins_with('_') or key.begins_with('metadata/_'): continue
 		if do_properties_to_include && key not in properties_to_include: continue
 		var value = json[key]
 		var property_details:Dictionary = object_property_details.get(key, {})
