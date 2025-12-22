@@ -197,7 +197,7 @@ func _get_properties_to_include(object:Object, ruleset:Dictionary) -> PackedStri
 func _get_properties_to_reference(object:Object, ruleset:Dictionary) -> Dictionary[String,String]:
 	var properties_to_reference_in_ruleset = ruleset.get('property_references',{})
 	if properties_to_reference_in_ruleset is not Dictionary:
-		report_error(3)
+		report_error(2)
 		return {}
 
 	# Iterate on every list.
@@ -207,13 +207,13 @@ func _get_properties_to_reference(object:Object, ruleset:Dictionary) -> Dictiona
 		var list = properties_to_reference_in_ruleset[key]
 		# Throw error if value is not the expected type.
 		if list is not Dictionary:
-			report_error(3)
+			report_error(2)
 			return {}
 		# Add to properties to reference.
 		for key_ in list:
 			var value = list[key_]
 			if value is not String:
-				report_error(3)
+				report_error(2)
 				return {}
 			properties_to_reference.set(key_, value)
 
