@@ -86,10 +86,14 @@ static func type_dictionary(dict:Dictionary, type_details:Dictionary) -> Diction
 	var value_class_name := &''
 	var key_script = null
 	var value_script = null
+	var construct_with_key_class_name := &''
+	var construct_with_value_class_name := &''
 	if key_type == TYPE_OBJECT:
+		construct_with_key_class_name = &'Object'
 		key_class_name = key_hint[-1]
 		key_script = A2J.object_registry.get(key_class_name)
 	if value_type == TYPE_OBJECT:
+		construct_with_value_class_name = &'Object'
 		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
 
@@ -119,12 +123,14 @@ static func type_array(array:Array, type_details:Dictionary) -> Array:
 	var value_type = A2JUtil.variant_type_string_map.find_key(value_hint[-1])
 	if value_type == null:
 		value_type = value_hint[0].split('/')[0].to_int()
-	var value_class_name = ''
+	var value_class_name := &''
 	var value_script = null
+	var construct_with_value_class_name := &''
 	
 	if value_type == TYPE_OBJECT:
+		construct_with_value_class_name = &'Object'
 		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
 	
 	# Return typed array.
-	return Array(array, value_type, value_class_name, value_script)
+	return Array(array, value_type, construct_with_value_class_name, value_script)
