@@ -6,7 +6,7 @@ func _init() -> void:
 	error_strings = [
 		'Object "~~" is not defined in registry.',
 		'"property_exclusions" in ruleset should be structured as follows: Dictionary[String,Array[String]].',
-		'"convert_properties_to_references" in ruleset should be structured as follows: Dictionary[String,Dictionary[String,String]].',
+		'"property_references" in ruleset should be structured as follows: Dictionary[String,Dictionary[String,String]].',
 		'"instantiator_function" in ruleset should be structured as follows: Callable(registered_object:Object, object_class:String, args:Array=[]) -> Object.',
 		'"instantiator_arguments" in rulset should be structured as follows: Dictionary[String,Array].',
 		'"property_inclusions" in ruleset should be structured as follows: Dictionary[String,Array[String]].',

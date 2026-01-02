@@ -53,6 +53,7 @@ const error_strings:PackedStringArray = [
 	'"class_exclusions" & "class_inclusions" in ruleset should be structured as follows: Array[String].',
 ]
 
+
 # Template for instantiator function.
 static func _default_instantiator_function(registered_object:Object, _object_class:String, args:Array=[]) -> Object:
 	return registered_object.callv('new', args)
