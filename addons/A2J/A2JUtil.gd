@@ -71,17 +71,26 @@ static func type_dictionary(dict:Dictionary, type_details:Dictionary) -> Diction
 		return dict
 
 	# Get type specifications.
-	var key_type = A2JUtil.variant_type_string_map.find_key(hint_string[0])
-	var value_type = A2JUtil.variant_type_string_map.find_key(hint_string[1])
+	# Determine key type.
+	var key_hint:PackedStringArray = hint_string[0].split(':')
+	var key_type = A2JUtil.variant_type_string_map.find_key(key_hint[-1])
+	if key_type == null:
+		key_type = key_hint[0].split('/')[0].to_int()
+	# Determine value type.
+	var value_hint:PackedStringArray = hint_string[1].split(':')
+	var value_type = A2JUtil.variant_type_string_map.find_key(value_hint[-1])
+	if value_type == null:
+		value_type = value_hint[0].split('/')[0].to_int()
+	# Determine class names & scripts.
 	var key_class_name := &''
 	var value_class_name := &''
 	var key_script = null
 	var value_script = null
 	if key_type == TYPE_OBJECT:
-		key_class_name = hint_string[0]
+		key_class_name = key_hint[-1]
 		key_script = A2J.object_registry.get(key_class_name)
 	if value_type == TYPE_OBJECT:
-		value_class_name = hint_string[1]
+		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
 
 	# Return typed dictionary.
@@ -106,21 +115,15 @@ static func type_array(array:Array, type_details:Dictionary) -> Array:
 		return array
 
 	# Get type specifications.
-	var value_type = A2JUtil.variant_type_string_map.find_key(hint_string[0])
+	var value_hint:PackedStringArray = hint_string[0].split(':')
+	var value_type = A2JUtil.variant_type_string_map.find_key(value_hint[-1])
+	if value_type == null:
+		value_type = value_hint[0].split('/')[0].to_int()
 	var value_class_name = ''
 	var value_script = null
 	
-	# NOTE: the block below is to fix the compound
-	# situation of Resource. e.g. MyRes { inputs: Array[InputEvent] }
-	# The hint_string here will be "24/17:InputEvent"
-	# while hint = 23 (TYPE_RID)
-	var hint = type_details.get("hint", null) # String | Nil
-	if not value_type and hint == TYPE_RID:
-		value_type = TYPE_OBJECT
-		hint_string = hint_string[0].split(":")
-	
 	if value_type == TYPE_OBJECT:
-		value_class_name = hint_string[1]
+		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
 	
 	# Return typed array.
