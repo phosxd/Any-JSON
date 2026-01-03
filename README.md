@@ -104,9 +104,9 @@ This works by storing an index value (packed within ".type") for every *unique* 
 ## Types preserved
 Any-JSON automatically re-types values to the type of the property it is assigning to in an `Object`, meaning you can serialize objects with strict property types & still guarantee everything will be the correct type upon deserialization.
 
-Without automatic typing, Godot will fail to apply a standard `Array` value to a property of type `Array[int]`. The same applies to typed dictionaries & other typed values.
+Without automatic typing, Godot will for example, fail to apply a standard `Array` value to a property of type `Array[int]` or to any other typed property. The same applies to typed dictionaries.
 
-The way Any-JSON ensures type safety is very efficient & doesn't require saving type data. During deserialization property type data is pulled from the class & that is used to tell the value what type it should be.
+The way Any-JSON ensures type safety is very efficient & doesn't require saving type data. During deserialization, property type details are pulled from the class & that is used to determine the type the data should be.
 
 ## Modular
 Everything is coded in GDScript across distinct classes & files, allowing for easy modification & extension.
