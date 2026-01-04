@@ -95,11 +95,9 @@ static func type_dictionary(dict:Dictionary, type_details:Dictionary) -> Diction
 	if value_type == TYPE_OBJECT:
 		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
-		
-		# Check notes in func `type_array()`
 		construct_with_value_class_name = \
-			&'Object' if value_script else \
-			value_class_name
+			&'Object' if not ClassDB.class_exists(value_class_name) else \
+			value_class_name # internal class (GDNativeScript)
 
 	# Return typed dictionary.
 	return Dictionary(dict,
@@ -134,16 +132,9 @@ static func type_array(array:Array, type_details:Dictionary) -> Array:
 	if value_type == TYPE_OBJECT:
 		value_class_name = value_hint[-1]
 		value_script = A2J.object_registry.get(value_class_name)
-		
-		# WARNING: by Ricky.Y.C
-		# That value_script equals to null 
-		# indicates that the object is a built-in resources, e.g. `InputEvent`. 
-		# This makes it's necessary to use a built-in, registered class_name 
-		# since our names of custom classes will not be registered. 
-		# This will make the variable `value_script` to null. 
 		construct_with_value_class_name = \
-			&'Object' if value_script else \
-			value_class_name
+			&'Object' if not ClassDB.class_exists(value_class_name) else \
+			value_class_name # internal class (GDNativeScript)
 	
 	# Return typed array.
 	# NOTE: Array(base: Array, type: int, class_name: StringName, script: Variant)
