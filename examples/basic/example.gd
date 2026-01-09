@@ -2,12 +2,20 @@
 extends Node
 @export var color_pallete: ColorPalette
 @export var cone: CylinderMesh
+@export var my_res: MyRes
 @export_tool_button('Print this scene as AJSON') var print_scene = print_scene_callback
 @export_tool_button('Print "color_pallete" as AJSON') var print_color_pallete = print_color_pallete_callback
 @export_tool_button('Print "cone" as AJSON') var print_cone = print_cone_callback
+@export_tool_button('Print "my_res" as AJSON') var print_my_res = print_my_res_callback
 
 ## Using this as an example of how circular references are accounted for. The "self" value in this array should get printed as a reference in the scene example.
 var something_with_a_self_ref:Array = [1,2,3,self]
+
+
+func _ready() -> void:
+	A2J.object_registry.merge({
+		'my_res': MyRes,
+	})
 
 
 func print_scene_callback() -> void:
@@ -36,8 +44,7 @@ func print_color_pallete_callback() -> void:
 	var result = A2J.to_json(color_pallete)
 	print_rich('[b]Result:[/b] ', result)
 	print_rich('[color=green][b]Converting result back to original object...')
-	var result_back = A2J.from_json(result)
-	result_back = result_back as ColorPalette
+	var result_back := A2J.from_json(result) as ColorPalette
 	print_rich(
 		'[b]Result back:[/b]',
 		'\n- colors: [code]%s[/code]' % result_back.colors,
@@ -49,12 +56,23 @@ func print_cone_callback() -> void:
 	var result = A2J.to_json(cone)
 	print_rich('[b]Result:[/b] ', result)
 	print_rich('[color=green][b]Converting result back to original object...')
-	var result_back = A2J.from_json(result)
-	result_back = result_back as CylinderMesh
+	var result_back := A2J.from_json(result) as CylinderMesh
 	print_rich(
 		'[b]Result back:[/b]',
 		'\n- top_radius: [code]%s[/code]' % result_back.top_radius,
 		'\n- bottom_radius: [code]%s[/code]' % result_back.bottom_radius,
 		'\n- height: [code]%s[/code]' % result_back.height,
 		'\n- radial_segments: [code]%s[/code]' % result_back.radial_segments,
+	)
+
+
+func print_my_res_callback() -> void:
+	print_rich('[color=yellow][b]Converting exported [code]my_res[/code] variable to AJSON...')
+	var result = A2J.to_json(my_res)
+	print_rich('[b]Result:[/b] ', result)
+	print_rich('[color=green][b]Converting result back to original object...')
+	var result_back := A2J.from_json(result) as MyRes
+	print_rich(
+		'[b]Result back:[/b]',
+		'\n', result_back,
 	)

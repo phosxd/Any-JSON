@@ -1,10 +1,26 @@
-[gd_scene load_steps=4 format=3 uid="uid://dga4yk8tfdnea"]
+[gd_scene load_steps=8 format=3 uid="uid://dga4yk8tfdnea"]
 
-[ext_resource type="Script" uid="uid://d328nghhb2gm5" path="res://examples/basic/example.gd" id="1_3snss"]
+[ext_resource type="Script" uid="uid://1t8bcleelg27" path="res://examples/basic/example.gd" id="1_3snss"]
 [ext_resource type="ColorPalette" uid="uid://h4r6mvdqcuab" path="res://examples/basic/color_palette.tres" id="2_my3cj"]
 [ext_resource type="CylinderMesh" uid="uid://bc5i4mc22hnyg" path="res://examples/basic/cone.tres" id="3_lfftu"]
+[ext_resource type="Script" uid="uid://saulr8bkiaxf" path="res://examples/basic/my_res.gd" id="4_my3cj"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_my3cj"]
+device = -1
+keycode = 65
+unicode = 97
+
+[sub_resource type="InputEventMouseButton" id="InputEventMouseButton_lfftu"]
+button_index = 1
+
+[sub_resource type="Resource" id="Resource_lfftu"]
+script = ExtResource("4_my3cj")
+action_name = "my_action"
+inputs = Array[InputEvent]([SubResource("InputEventKey_my3cj"), SubResource("InputEventMouseButton_lfftu")])
+metadata/_custom_type_script = "uid://saulr8bkiaxf"
 
 [node name="Example" type="Node"]
 script = ExtResource("1_3snss")
 color_pallete = ExtResource("2_my3cj")
 cone = ExtResource("3_lfftu")
+my_res = SubResource("Resource_lfftu")
