@@ -80,10 +80,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 
 	elif type == 'PackedStringArray':
 		value = value as Array
-		var contains_only_strings:bool = value.all(func(item) -> bool:
-			return item is String
-		)
-		if not contains_only_strings:
+		if not A2JUtil.is_string_array(value):
 			report_error(1)
 			return null
 		return PackedStringArray(value)

@@ -260,7 +260,6 @@ func _get_all_property_type_details(object:Object) -> Dictionary[String,Dictiona
 		properties.set(item.name, {
 			'class_name': item.class_name,
 			'type': item.type,
-			'hint': item.hint,
 			'hint_string': item.hint_string,
 		})
 	return properties

@@ -42,6 +42,13 @@ static func is_number_array(array:Array) -> bool:
 	)
 
 
+## Returns true if the array consists of only strings.
+static func is_string_array(array:Array) -> bool:
+	return array.all(func(item) -> bool:
+			return item is String
+	)
+
+
 ## Returns the global class name of the [param object].
 static func get_class_name(object:Object) -> StringName:
 	var object_class: StringName

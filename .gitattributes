@@ -5,3 +5,6 @@
 /**        export-ignore
 /addons    !export-ignore
 /addons/** !export-ignore
+
+# Don't include UID files.
+*.uid export-ignore

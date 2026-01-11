@@ -65,22 +65,18 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Variant:
 		report_error(1)
 		return null
 
-	# Vector2.
-	if values.size() == 2 && not is_float:
-		return Vector2i(values[0], values[1])
-	elif values.size() == 2 && is_float:
-		return Vector2(values[0], values[1])
-	# Vector3.
-	elif values.size() == 3 && not is_float:
-		return Vector3i(values[0], values[1], values[2])
-	elif values.size() == 3 && is_float:
-		return Vector3(values[0], values[1], values[2])
-	# Vector4.
-	elif values.size() == 4 && not is_float:
-		return Vector4i(values[0], values[1], values[2], values[3])
-	elif values.size() == 4 && is_float:
-		return Vector4(values[0], values[1], values[2], values[3])
-	# Throw error if no conditions match.
-	else:
-		report_error(1)
-		return null
+	var count:int = values.size()
+	# Float vectors.
+	if is_float: match count:
+		2: return Vector2(values[0], values[1])
+		3: return Vector3(values[0], values[1], values[2])
+		4: return Vector4(values[0], values[1], values[2], values[3])
+	# Integer-only vectors.
+	else: match count:
+		2: return Vector2i(int(values[0]), int(values[1]))
+		3: return Vector3i(int(values[0]), int(values[1]), int(values[2]))
+		4: return Vector4i(int(values[0]), int(values[1]), int(values[2]), int(values[3]))
+
+	# Throw error if no conditions match
+	report_error(1)
+	return null

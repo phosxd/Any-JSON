@@ -185,7 +185,7 @@ static func _to_json(value:Variant, ruleset:=default_ruleset_to) -> Variant:
 	if _type_excluded(type, ruleset): return null
 	# If class excluded, return null.
 	elif object_class && _class_excluded(object_class, ruleset): return null
-	# If type is primitive, return the value unchanged.
+	# If type is primitive, return value unchanged (except when rules apply).
 	if typeof(value) in primitive_types:
 		if value is float && ruleset.get('fppe_mitigation'):
 			value = snappedf(value, 0.00000001)
