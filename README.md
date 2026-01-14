@@ -34,10 +34,6 @@ After converting your item to an AJSON dictionary, you can use `JSON.stringify` 
   - [Serializing back from AJSON](#serializing-back-from-ajson)
   - [Safe deserialization](#safe-deserialization)
   - [More...](./examples/)
-- [Tutorials](#tutorials)
-  - [EASY & secure game state save system](?)
-  - [Safe game modding system](?)
-  - [Cross-app interpretation](?)
 
 # Why use over alternatives
 ## JSON.stringify
