@@ -13,8 +13,12 @@ extends Node
 ## [br] - Navigation2D
 ## [br] - Navigation3D
 @export_file('*.gdbuild') var engine_compilation_configuration:String = ''
+## Feature grouped classes to exclude in the generated registry.
+@export_flags('Editor:1') var more_disabled_features:int = 0
 ## Classes to exclude in the generated registry.
 @export var more_disabled_classes:Array[String] = []
+
+const EDITOR_FEATURE_FLAG:int = 1
 
 
 func callback() -> void:
@@ -58,6 +62,7 @@ func callback() -> void:
 			if 'nav2d' in disabled_features && item.begins_with('Navigation') && item.ends_with('2D'): continue
 			if 'nav3d' in disabled_features && item.begins_with('Navigation') && item.ends_with('3D'): continue
 		if item in more_disabled_classes: continue
+		if more_disabled_features & EDITOR_FEATURE_FLAG && item.begins_with('Editor'): continue
 		count += 1
 		result.append("'%s':%s, " % [item,item])
 		if count == items_per_line:
