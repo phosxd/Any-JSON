@@ -4,7 +4,7 @@ class_name A2JObjectTypeHandler extends A2JTypeHandler
 
 func _init() -> void:
 	error_strings = [
-		'Object "~~" is not defined in registry.',
+		'Class "~~" is not defined in registry.',
 		'"property_exclusions" in ruleset should be structured as follows: Dictionary[String,Array[String]].',
 		'"property_references" in ruleset should be structured as follows: Dictionary[String,Dictionary[String,String]].',
 		'"instantiator_function" in ruleset should be structured as follows: Callable(registered_object:Object, object_class:String, args:Array=[]) -> Object.',
@@ -17,14 +17,14 @@ func _init() -> void:
 	}
 
 
-func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
+func to_json(object:Object, ruleset:Dictionary) -> Variant:
 	var object_class := A2JUtil.get_class_name(object)
 
 	# Get & check registered object equivalent.
 	var registered_object = A2J.object_registry.get(object_class, null)
 	if registered_object == null:
 		report_error(0, object_class)
-		return {}
+		return null
 	registered_object = registered_object as Object
 	# Get default object to compare properties with.
 	var default_object:Object = _get_default_object(registered_object, object_class, ruleset)
@@ -50,13 +50,14 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 	var props_to_include_temp = ruleset.get('property_inclusions', {})
 	var do_properties_to_include = (props_to_include_temp is Dictionary && not props_to_include_temp.is_empty())
 	var properties_to_reference:Dictionary[String,String] = _get_properties_to_reference(object, ruleset)
+
 	# Convert all properties.
 	for property in object.get_property_list():
 		if property.name in properties_to_exclude: continue # Exclude.
 		if ruleset.get('exclude_private_properties'):
 			if property.name.begins_with('_') or property.name.begins_with('metadata/_'): continue
 		if do_properties_to_include && property.name not in properties_to_include: continue
-		# Reference is on properties to reference list.
+		# If reference is on "properties_to_reference" list. Set a reference of the property.
 		if property.name in properties_to_reference:
 			var reference_name = properties_to_reference[property.name]
 			result.set(property.name, _make_reference(reference_name))
@@ -67,12 +68,17 @@ func to_json(object:Object, ruleset:Dictionary) -> Dictionary[String,Variant]:
 		# Exclude values that are the same as default values.
 		if ruleset.get('exclude_properties_set_to_default'):
 			if property_value == default_object.get(property.name): continue
+
+		A2J._tree_position.append(property.name)
 		# Convert value.
 		var new_value = A2J._to_json(property_value, ruleset)
 		# Don't store null values.
-		if new_value == null: continue
+		if new_value == null:
+			A2J._tree_position.pop_back()
+			continue
 		# Set new value.
 		result.set(property.name, new_value)
+		A2J._tree_position.pop_back()
 	
 	return result
 
@@ -107,6 +113,7 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 		if keys.has(item):
 			keys.erase(item)
 			keys.insert(0, item)
+
 	# Convert all values in the dictionary.
 	for key in keys:
 		if key.begins_with('.'): continue
@@ -114,18 +121,21 @@ func from_json(json:Dictionary, ruleset:Dictionary) -> Object:
 		if ruleset.get('exclude_private_properties'):
 			if key.begins_with('_') or key.begins_with('metadata/_'): continue
 		if do_properties_to_include && key not in properties_to_include: continue
+		A2J._tree_position.append(key)
 		var value = json[key]
 		var property_type_details:Dictionary = all_property_type_details.get(key, {})
 		var new_value = A2J._from_json(value, ruleset, property_type_details)
 		# Pass unresolved reference off to be resolved ater all objects are serialized & present in the object stack.
 		if new_value is String && new_value == '_A2J_unresolved_reference':
 			A2J._process_next_pass_functions.append(_resolve_reference.bind(result, key, value))
+			A2J._tree_position.pop_back()
 			continue
 		# Set value as metadata.
 		if key.begins_with('metadata/'):
 			result.set_meta(key.replace('metadata/',''), new_value)
 		# Set value
 		else: result.set(key, new_value)
+		A2J._tree_position.pop_back()
 
 		# Update property type details after script has been applied to the object.
 		if key == 'script':

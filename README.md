@@ -157,8 +157,9 @@ A "ruleset" can be supplied when converting to or from AJSON allowing fine contr
 - `midpoint (Callable(item:Variant, ruleset:Dictionary) -> bool)`: Called right before conversion for every variable & property including nested ones. Returning `true` will permit conversion, returning `false` will discard the conversion for that item.
 
 ## Error logs
-Custom errors are printed to the console when serialization goes wrong. You can connect to the `A2J.error_server` to run code when an error occurs.
+Custom errors are printed to the console when serialization goes wrong. A generic unknown class error would look something like this `ERROR: A2JObjectTypeHandler.gd found error at ROOT > SomeProperty > @index:0: Class "MyCustomClass" is not defined in registry.`.
 
+You can connect to the `A2J.error_server` to run code when an error occurs.
 There are 2 signals emitted from `A2J.error_server`.
 - `handler_error`: Emitted when any of the type handlers catch an error.
 - `core_error`: Emitted when the core A2J process catches an error.

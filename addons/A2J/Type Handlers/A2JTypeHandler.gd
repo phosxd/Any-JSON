@@ -6,7 +6,7 @@
 @abstract func from_json(value, ruleset:Dictionary)
 
 
-const a2jError := 'A2J Error (%s): '
+const a2jError := '%s.gd found error at [code]%s[/code]: '
 ## When true, errors reported using [code]report_error[/code] will be printed to the console.
 var print_errors := true
 ## Error message strings.
@@ -18,7 +18,7 @@ var init_data:Dictionary = {}
 ## Report an error to Any-JSON.
 ## [param translations] should be strings.
 func report_error(error:int, ...translations) -> void:
-	var a2jError_ = a2jError % self.get_script().get_global_name()
+	var a2jError_ = a2jError % [self.get_script().get_global_name(), ' > '.join(A2J._tree_position)]
 
 	# Construct message.
 	var message = error_strings.get(error)
@@ -33,4 +33,4 @@ func report_error(error:int, ...translations) -> void:
 
 	# Emit error.
 	var handler_name:String = get_script().get_global_name()
-	A2J.error_server.handler_error.emit(handler_name, error, message)
+	A2J.error_server.handler_error.emit(handler_name, error, message, A2J._tree_position.duplicate())

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c0ym61rx3tg48"]
+
+[ext_resource type="Script" uid="uid://d1typ0yvu8x06" path="res://examples/error/error.gd" id="1_fp2uj"]
+
+[node name="Error" type="Node" unique_id=548977831]
+script = ExtResource("1_fp2uj")

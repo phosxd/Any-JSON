@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dga4yk8tfdnea"]
+[gd_scene format=3 uid="uid://dga4yk8tfdnea"]
 
 [ext_resource type="Script" uid="uid://d328nghhb2gm5" path="res://examples/basic/example.gd" id="1_3snss"]
 [ext_resource type="ColorPalette" uid="uid://h4r6mvdqcuab" path="res://examples/basic/color_palette.tres" id="2_my3cj"]
@@ -17,9 +17,8 @@ button_index = 1
 script = ExtResource("4_my3cj")
 action_name = "my_action"
 inputs = Array[InputEvent]([SubResource("InputEventKey_my3cj"), SubResource("InputEventMouseButton_lfftu")])
-metadata/_custom_type_script = "uid://saulr8bkiaxf"
 
-[node name="Example" type="Node"]
+[node name="Example" type="Node" unique_id=141535796]
 script = ExtResource("1_3snss")
 color_pallete = ExtResource("2_my3cj")
 cone = ExtResource("3_lfftu")

@@ -216,16 +216,21 @@ static var error_server := A2JErrorServer.new()
 
 ## Data that [A2JTypeHandler] objects can share & use during serialization.
 ## Cleared before & after [code]to_json[/code] or [code]from_json[/code] is called.
-static var _process_data:Dictionary = {}
+static var _process_data: Dictionary
 
 ## Array of functions for [A2JTypeHandler] objects to add to. Will be called in order after the main serialization has completed.
 static var _process_next_pass_functions:Array[Callable] = []
+
+## Array of property names, pointing to where the data structure being serialized is currently at.
+## Used to find exactly where in the data structure an error was found.
+static var _tree_position: Array[String]
+const _default_tree_position:Array[String] = ['ROOT']
 
 
 ## Report an error to Any-JSON.
 ## [param translations] should be strings.
 static func report_error(error:int, ...translations) -> void:
-	var a2jError_ = A2JTypeHandler.a2jError % 'A2J'
+	var a2jError_ = A2JTypeHandler.a2jError % ['A2J', ' > '.join(A2J._tree_position)]
 	var message = error_strings.get(error)
 	if message is not String: printerr(a2jError_+str(error))
 	else:
@@ -243,6 +248,7 @@ static func report_error(error:int, ...translations) -> void:
 ## [br][br]
 ## Returns [code]null[/code] if failed.
 static func to_json(value:Variant, ruleset:=default_ruleset_to) -> Variant:
+	_tree_position = _default_tree_position.duplicate()
 	_process_next_pass_functions.clear()
 	_process_data.clear()
 	_init_handler_data()
@@ -287,6 +293,7 @@ static func _to_json(value:Variant, ruleset:=default_ruleset_to) -> Variant:
 
 ## Convert [param value] to it's original value. Returns [code]null[/code] if failed.
 static func from_json(value, ruleset:=default_ruleset_from) -> Variant:
+	_tree_position = _default_tree_position.duplicate()
 	_process_next_pass_functions.clear()
 	_process_data.clear()
 	_init_handler_data()
