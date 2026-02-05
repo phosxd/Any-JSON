@@ -347,7 +347,7 @@ var ruleset := {
 
 var result = A2J.from_json(your_serialized_object, ruleset)
 ```
-In this example we utilize the "class\_exclusions" rule (with [@des](#@des) modifier) to exclude any object with the class name "GDScript during deserialization. Any instances of a GDScript object in the AJSON will be discarded during conversion back to an object.
+In this example we utilize the "class\_exclusions" rule (with [@des](#des) modifier) to exclude any object with the class name "GDScript during deserialization. Any instances of a GDScript object in the AJSON will be discarded during conversion back to an object.
 
 However if your object is like a node with a script attached, you cannot exclude the script otherwise script dependent variables will be lost. You should **reference** the script instead excluding it see [rulesets -> advanced rules](#rulesets).
 
