@@ -11,15 +11,6 @@ Godot 4.5 / 4.6 plugin to convert any Godot variant to raw JSON & back.
 # **Introduction**
 This plugin can serialize pretty much any\* data type within Godot to a JSON-compatible dictionary. You can serialize entire objects or trees of objects while preserving all data.
 
-<!--
-Any-JSON can be split into 2 main parts, either can be used without ever needing to know how to use the other.
-
-1. **Any-JSON interface:** this pertains to the global `A2J` static class which you can use to serialize variables directly by calling it's methods.
-
-  This is what most of the documentation is for & what most examples will be using.
-2. **SceneStateCapture:** this is a custom node that can be added to your scene that makes it stupidly easy to save (AND load) entire nodes or just specific node properties in your scene. You can learn more at [SceneStateCapture](#scenestatecapture).
--->
-
 Any-JSON is very simple to use, no need for setup or specification. All built-in classes should already be supported, but if you run into an object with an unsupported class you can simply add that class to the `A2J.object_registry` & try again. For finer control over how things get done, see [rulesets](#rulesets).
 
 After converting your item to an AJSON dictionary, you can use `JSON.stringify` to turn it into a raw text string but you will need to convert it back to a dictionary using `JSON.parse_string` if you want to convert it back to the original item.
