@@ -4,7 +4,7 @@
 
 Godot 4.5 / 4.6 plugin to convert any Godot variant to raw JSON & back.
 
-[![Release](https://img.shields.io/badge/-gray?style=flat&logo=discord)](https://dsc.gg/sohp) **Version:** 2.0.0
+[![Release](https://img.shields.io/badge/-gray?style=flat&logo=discord)](https://dsc.gg/sohp) **Version:** 2.0.1
 
 </div>
 
