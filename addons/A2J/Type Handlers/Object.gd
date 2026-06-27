@@ -20,6 +20,7 @@ func _init() -> void:
 		'"instantiator_arguments" in rulset should be structured as follows: Dictionary[String,Array].',
 		'"property_inclusions" in ruleset should be structured as follows: Array[String].',
 		'Cannot convert from an invalid JSON representation.',
+		'Unable to instantiate a default object of "%s". Make sure you have passed all arguments needed for this object in the "instantiator_arguments" rule.',
 	]
 	init_data = {
 		# Property type data cache.
@@ -40,6 +41,9 @@ func to_json(object:Object, ruleset:Dictionary) -> Variant:
 	registered_object = registered_object as Object
 	# Get default object to compare properties with.
 	var default_object:Object = _get_default_object(registered_object, object_class, ruleset)
+	if default_object == null:
+		report_error(7, object_class)
+		return null
 
 	# If object is an external resource, return a reference to it.
 	if ruleset.get('automatic_resource_references') == true && object is Resource:
@@ -123,6 +127,10 @@ func from_json(headers:PackedStringArray, json:Dictionary, ruleset:Dictionary) -
 		result = DPITexture.create_from_string(json['source'])
 	else:
 		result = _get_default_object(registered_object, object_class, ruleset)
+		if result == null:
+			report_error(7, object_class)
+			return null
+
 	# Add result object to "variant_map" for use in references.
 	A2J._process_data.variant_map.set(id, result)
 	# Get rules.
